@@ -1,23 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ECHO - AI Chat</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>ECHO – Experimental Cognitive Handler Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a0a0a;
+      color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      padding: 15px;
+      text-align: center;
+      background: linear-gradient(90deg, #0ff, #08f);
+      color: #000;
+      font-weight: bold;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+    }
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg {
+      padding: 12px 16px;
+      border-radius: 12px;
+      max-width: 70%;
+      line-height: 1.4;
+      animation: fadeIn 0.3s ease;
+    }
+    .user {
+      background: #08f;
+      color: #fff;
+      align-self: flex-end;
+    }
+    .bot {
+      background: #222;
+      color: #0ff;
+      border: 1px solid #0ff;
+      align-self: flex-start;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    form {
+      display: flex;
+      border-top: 1px solid #333;
+      padding: 10px;
+      background: #111;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      outline: none;
+      background: #1a1a1a;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      margin-left: 10px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #0ff, #08f);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      opacity: 0.85;
+    }
+  </style>
 </head>
 <body>
-  <div class="chat-container">
-    <header>
-      <h1>ECHO</h1>
-      <p>Your personal AI assistant</p>
-    </header>
-    <main id="chat-box"></main>
-    <footer>
-      <input type="text" id="user-input" placeholder="Type a message..." />
-      <button id="send-btn">Send</button>
-    </footer>
-  </div>
-  <script src="script.js"></script>
+  <header>ECHO – Experimental Cognitive Handler Online</header>
+  <div id="chat"></div>
+  <form id="chat-form">
+    <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("user-input");
+
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("msg", sender);
+      msg.textContent = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Show welcome message
+    addMessage("Hello, I am ECHO – Experimental Cognitive Handler Online. How can I assist you today?", "bot");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage(text, "user");
+      input.value = "";
+
+      addMessage("Thinking...", "bot");
+
+      try {
+        // Gemini API integration
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAn689L2M9J427eujQEkzNjcNm4ufv1oaU", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              role: "user",
+              parts: [{ text: "You are ECHO, Experimental Cognitive Handler Online. Introduce yourself as ECHO only when relevant and keep responses clear and helpful. User says: " + text }]
+            }]
+          })
+        });
+
+        const data = await response.json();
+        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Hmm, I couldn’t process that.";
+        chat.lastChild.textContent = reply;
+
+      } catch (err) {
+        chat.lastChild.textContent = "⚠️ Error connecting to API.";
+        console.error(err);
+      }
+    });
+  </script>
 </body>
 </html>
