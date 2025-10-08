@@ -137,17 +137,20 @@
 })
  
         const data = await response.json();
-        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Hmm, I couldn’t process that.";
-        chat.lastChild.textContent = reply;
-
-      } catch (err) {
-        chat.lastChild.textContent = "⚠️ Error connecting to API.";
-        console.error(err);
+  const reply =
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+    "Hmm, I couldn’t process that.";
+  chat.lastChild.textContent = reply;
+} catch (err) {
+  chat.lastChild.textContent = "⚠️ Error connecting to API.";
+  console.error(err);
+}
       }
     });
   </script>
 </body>
 </html>
+
 
 
 
